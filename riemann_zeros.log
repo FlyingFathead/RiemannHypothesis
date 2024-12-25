@@ -945,3 +945,8 @@
 2024-12-25 08:55:05 [INFO] RiemannHypothesisRS: Done iteration 16 over [600.0, 640.0].
 
 2024-12-25 08:55:05 [INFO] RiemannHypothesisRS: === Iteration 17: Scanning t in [640.0, 680.0] ===
+2024-12-25 09:26:47 [INFO] RiemannHypothesis: ===== Advanced Riemann Hypothesis Scanner (Demo) =====
+2024-12-25 09:26:47 [INFO] RiemannHypothesis: Using precision: 300
+2024-12-25 09:26:47 [INFO] RiemannHypothesis: RS_THRESHOLD = 50 (switch to R-S at |t|>=50)
+2024-12-25 09:26:47 [INFO] RiemannHypothesis: Press Ctrl+C to stop at any time.
+
