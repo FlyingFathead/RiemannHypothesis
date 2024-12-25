@@ -1,10 +1,10 @@
 # RiemannHypothesis
 **Riemann Hypothesis Numeric Scanner & Exploratory Tools**  
 
-This repository contains experimental Python scripts for **indefinitely** scanning the imaginary axis, searching for zeros of the Riemann zeta function \(\zeta(\tfrac12 + i t)\). These scripts:
+This repository contains experimental Python scripts for **indefinitely** scanning the imaginary axis, searching for zeros of the Riemann zeta function zeta(1/2 + i * t). These scripts:
 
-- Break the \(t\)-axis into chunks (e.g. width 40),  
-- Use a sign-change method to locate zero-crossings of the real part of a special function \(\Xi(\tfrac12 + i t)\),  
+- Break the t-axis into chunks (e.g. width 40),  
+- Use a sign-change method to locate zero-crossings of the real part of a special function Xi(1/2 + i * t),  
 - Refine each crossing via bisection, and  
 - Log the discovered zeros to both the console and a file (`riemann_zeros.log`).
 
@@ -27,8 +27,8 @@ This repository contains experimental Python scripts for **indefinitely** scanni
 - **Indefinite scanning**: The scripts can run forever (or until you stop them with Ctrl+C), chunk after chunk.  
 - **Logging**: They log to both console and `riemann_zeros.log`, giving sign-change intervals and refined zero positions.  
 - **Flexible approach**:  
-  - [riemann_hypothesis_scanner.py](riemann_hypothesis_scanner.py) uses naive partial-sum expansions for large \(|t|\).  
-  - [riemann_hypothesis_rsi.py](riemann_hypothesis_rsi.py) includes a toy “Riemann–Siegel–like” approximation for somewhat better performance at large \(|t|\).
+  - [riemann_hypothesis_scanner.py](riemann_hypothesis_scanner.py) uses naive partial-sum expansions for large imaginary parts of s.  
+  - [riemann_hypothesis_rsi.py](riemann_hypothesis_rsi.py) includes a toy “Riemann–Siegel–like” approximation for somewhat better performance at large |t|.
 
 ---
 
@@ -76,38 +76,38 @@ This repository contains experimental Python scripts for **indefinitely** scanni
 
 ### 1. `riemann_hypothesis_scanner.py`
 
-- Uses `flexible_zeta(s)` which calls `mp.zeta(s)` for moderate \(|\mathrm{Im}(s)|\) and a simple partial-sum approach for large \(|\mathrm{Im}(s)|\).  
-- Logs each discovered zero with a “PASS” if \(\lvert \Xi \rvert < 10^{-10}\).  
-- **Not** optimized for extremely large \(|t|\) but demonstrates the indefinite scanning concept.
+- Uses `flexible_zeta(s)` which calls `mp.zeta(s)` for moderate imaginary parts of s, and a simple partial-sum approach for large ones.  
+- Logs each discovered zero with a “PASS” if |Xi| < 1e-10.  
+- **Not** optimized for extremely large |t| but demonstrates the indefinite scanning concept.
 
 ### 2. `riemann_hypothesis_rsi.py`
 
 - Similar indefinite scanning approach.  
-- Attempts a naive “Riemann–Siegel–like Z” function for large \(|t|\).  
-- Still a toy version: real Riemann–Siegel formula is more sophisticated (involving \(\theta(t)\), Gram points, etc.).  
-- May handle large \(|t|\) a bit better than the naive script but is not a robust HPC solution.
+- Attempts a naive “Riemann–Siegel–like Z” function for large |t|.  
+- Still a toy version: real Riemann–Siegel formula is more sophisticated (involving a proper theta(t) function, Gram points, etc.).  
+- May handle large |t| a bit better than the naive script but is not a robust HPC solution.
 
 ---
 
 ## Performance Notes
 
-- For truly **large \(|t|\)**, these scripts may become slow or lose numeric stability, even with `mp.mp.prec` set high. Real HPC computations require advanced expansions or dedicated methods (like implementing the full Riemann–Siegel formula).  
+- For truly **large |t|**, these scripts may become slow or lose numeric stability, even with `mp.mp.prec` set high. Real HPC computations require advanced expansions or dedicated methods (like implementing the full Riemann–Siegel formula).  
 - A smaller `STEP_SIZE` improves accuracy but increases computation time.  
-- Increase `mp.mp.prec` if you see suspicious results at large \(|t|\).
+- Increase `mp.mp.prec` if you see suspicious results at large |t|.
 
 ---
 
 ## Advanced Ideas
 
-- **Implement a full Riemann–Siegel** formula: The toy approach in `riemann_hypothesis_rsi.py` is incomplete. A correct formula would handle the \(\theta\) phase function and corrections meticulously.  
+- **Implement a full Riemann–Siegel** formula: The toy approach in `riemann_hypothesis_rsi.py` is incomplete. A correct formula would handle the theta(t) phase function and corrections meticulously.  
 - **Check prime gap or zero correlation**: Instead of just scanning, you could do statistical analysis on zero spacings, compare to random matrix theory, etc.  
-- **Distributed/HPC**: If you want to push well beyond \(t \approx 10^6\) or more, consider parallelizing or using advanced algorithms (Odlyzko’s approach, Gram points, etc.).
+- **Distributed/HPC**: If you want to push well beyond t ~ 1e6 or more, consider parallelizing or using advanced algorithms (Odlyzko’s approach, Gram points, etc.).
 
 ---
 
 ## License
 
-These scripts are here, and if you crack the million dollar prize, send me at least 50% of it (contact: `flyingfathead@protonmail.com`). Thanks.
+These scripts are here, and if you crack the million-dollar prize, send me at least 50% (contact: `flyingfathead@protonmail.com`). Thanks.
 
 ---
 
