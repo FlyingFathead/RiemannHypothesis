@@ -29,10 +29,17 @@ This repository contains experimental Python scripts for indefinitely scanning t
 - **Indefinite scanning**: The scripts can run forever (or until you stop them with Ctrl+C), chunk after chunk.  
 - **Logging**: They log to both console and `riemann_zeros.log`, giving sign-change intervals and refined zero positions.  
 - **Flexible approach**:
-  - [`riemann_hypothesis_scanner.py`](riemann_hypothesis_scanner.py) now uses a simple Riemann–Siegel formula for large |t|, helping with better accuracy for high imaginary parts of s.  
-  - [`riemann_hypothesis_rsi.py`](riemann_hypothesis_rsi.py) still has a more basic “Riemann–Siegel–like” partial sum.  
+  - [`riemann_hypothesis_scanner.py`](riemann_hypothesis_scanner.py) uses a simple Riemann–Siegel formula for large |t|, providing improved accuracy at higher imaginary parts of s compared to naive partial sums.  
+  - [`riemann_hypothesis_scanner_advanced.py`](riemann_hypothesis_scanner_advanced.py) builds on this further with:
+    - More correction terms in the Riemann–Siegel remainder,  
+    - Adaptive step scanning to avoid missing quick zero crossings,  
+    - A rudimentary Turing-like check,  
+    - Parallelization for scanning multiple chunks at once,  
+    - State saving (resume scanning),  
+    - Logging zeros to both the console/log and a CSV file.  
+  - [`riemann_hypothesis_rsi.py`](riemann_hypothesis_rsi.py) is an older, more basic “Riemann–Siegel–like” partial-sum approach.
 
-Both approaches demonstrate the concept of indefinite scanning for zeros, but for truly large |t| or HPC-level performance, more refined methods are needed.
+All demonstrate the concept of indefinite scanning for zeros, but for truly large |t| or HPC-level performance, more sophisticated methods (or further refinements) are needed.
 
 ---
 
@@ -63,56 +70,66 @@ Both approaches demonstrate the concept of indefinite scanning for zeros, but fo
    if you maintain a `requirements.txt`.
 
 3. **Run a script**  
-   - For the updated indefinite scanner with a simple Riemann–Siegel approach:
+   - For the **advanced** indefinite scanner (with partial Turing checks, adaptive step, parallel scanning, etc.):
+     ```bash
+     python riemann_hypothesis_scanner_advanced.py
+     ```
+   - For a simpler indefinite scanner that uses a basic Riemann–Siegel approach:
      ```bash
      python riemann_hypothesis_scanner.py
      ```
-   - For the older “Riemann–Siegel–like” partial-sum version:
+   - For an older partial-sum style “Riemann–Siegel–like” version:
      ```bash
      python riemann_hypothesis_rsi.py
      ```
+
 4. **Observe output**  
    - The console shows intervals of potential zero-crossings and refined zeros.  
-   - A file named `riemann_zeros.log` also logs these findings.
+   - A file named `riemann_zeros.log` also logs these findings.  
+   - For the advanced script, discovered zeros also go to a CSV file (`riemann_zeros_found.csv`) for further analysis.
 
 5. **Adjust parameters**  
    - Inside the scripts, tweak variables like `mp.mp.prec` (precision), `CHUNK_SIZE`, `STEP_SIZE`, `REFINE_TOL`, etc. to suit your performance vs. accuracy needs.  
-   - By default, it runs indefinitely (`EXPANSIONS = None`). If you want only a few expansions, set `EXPANSIONS` to a finite integer in the code.
+   - By default, the scripts run indefinitely (`EXPANSIONS = None`). If you want only a few expansions, set `EXPANSIONS` to a finite integer in the code.
 
 ---
 
 ## Scripts Overview
 
-### 1. `riemann_hypothesis_scanner.py`
+### 1. `riemann_hypothesis_scanner_advanced.py`
 
-- Implements `flexible_zeta(s)`, which calls `mp.zeta(s)` for moderate imaginary parts, but switches to a simple Riemann–Siegel approach for |t| >= 50.  
-- This approach leverages a minimal Riemann–Siegel formula, which involves:
-  - A theta(t) phase function,  
-  - A main sum up to floor(sqrt(t / (2*pi))),  
-  - A crude remainder term.  
+- Includes improved Riemann–Siegel corrections, a basic partial Turing-like check, parallel chunk scanning, adaptive step sign-change detection, and optional resume.  
+- Logs zeros to console/log file and also to `riemann_zeros_found.csv`.  
+- More accurate than `riemann_hypothesis_scanner.py` at larger |t| and less likely to miss zeros due to oscillations.  
+- Still not a fully rigorous HPC solution, but a more feature-rich demonstration.
+
+### 2. `riemann_hypothesis_scanner.py`
+
+- Implements `flexible_zeta(s)`, switching to a simple Riemann–Siegel approach for |t| >= 50.  
 - Logs each discovered zero with a “PASS” if |Xi| < 1e-10.  
-- Much more accurate than naive partial sums at larger |t|, but still not HPC-grade.
+- More accurate than naive partial sums, though does not include advanced features like adaptive stepping or Turing checks.
 
-### 2. `riemann_hypothesis_rsi.py`
+### 3. `riemann_hypothesis_rsi.py`
 
-- An earlier indefinite scanning approach with a “Riemann–Siegel–like Z function” that is less fleshed out.  
-- Good for demonstration but replaced by the improved approach in `riemann_hypothesis_scanner.py` for practical scanning to larger |t|.
+- An older indefinite scanning approach with a “Riemann–Siegel–like Z function” that is even more naive.  
+- Good for demonstration but replaced by the newer scripts for practical scanning to larger |t|.
 
 ---
 
 ## Performance Notes
 
-- For truly **large |t|**, these scripts may become slow or lose numeric stability, even with `mp.mp.prec` set high. More advanced expansions (for example, a full Riemann–Siegel or Odlyzko–Schönhage method) are needed for HPC-level scanning.  
-- A smaller `STEP_SIZE` reduces the chance of missing zeros but increases computation time.  
-- Increase `mp.mp.prec` if you see suspicious results at large |t|. Keep in mind this slows down each function call.
+- For truly **large |t|**, these scripts may become slow or lose numeric stability, even with high `mp.mp.prec`. Real HPC methods require advanced expansions (for example, a full Riemann–Siegel integral remainder or Odlyzko–Schönhage algorithms).  
+- A smaller `STEP_SIZE` helps avoid missing zeros but increases computation time. Adaptive stepping (in `riemann_hypothesis_scanner_advanced.py`) is one approach to mitigate that.  
+- Adjusting `mp.mp.prec` higher slows down each function call, so find a balance between accuracy and performance.
 
 ---
 
 ## Advanced Ideas
 
-- **Implement a fully correct Riemann–Siegel formula**: The approach here is still partial. A complete formula includes more detailed remainder approximations and often uses Gram points for systematic zero isolation.  
-- **Statistical analysis**: Once zeros are found, you could study their spacing and compare to random matrix theory.  
-- **Distributed/HPC**: Pushing above t ~ 10^6 or higher typically requires parallel or specialized algorithms.
+- **Full Riemann–Siegel**: The “improved remainder” in these scripts is still heuristic. A complete formula includes more detailed integrals and expansions, plus possibly Gram points to systematically isolate each zero.  
+- **Turing Method**: The partial Turing-like check here is basic. A real Turing approach provides a proof that no zeros are missed in a given range, often by integrating certain functions.  
+- **Statistical analysis**: Once zeros are found, you could study their spacing and compare to random matrix predictions for zero distributions.  
+- **Distributed/HPC**: For scanning above t ~ 10^6, consider parallel algorithms (Odlyzko–Schönhage, etc.) and large compute clusters.
 
 ---
 
